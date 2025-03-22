@@ -15,15 +15,19 @@ tasks:
     cmds:
       - uv export -o requirements.txt --no-hashes
 
-  build:
+　deploy:
     cmds:
-      - pack build $JOB_NAME && docker image prune -f
+      - gcloud run jobs deploy $JOB_NAME --source . --project $PROJECT --service-account $SERVICE_ACCOUNT --region $REGION --tasks $TASKS --max-retries $MAX_RETRIES
     deps:
       - export-requirements
 
-  deploy:
+  run-remote:
     cmds:
-      - gcloud run jobs deploy $JOB_NAME --source . --project $PROJECT --service-account $SERVICE_ACCOUNT --region $REGION --tasks $TASKS --max-retries $MAX_RETRIES
+      - gcloud run jobs execute $JOB_NAME --project $PROJECT --region $REGION
+
+  build:
+    cmds:
+      - pack build $JOB_NAME
     deps:
       - export-requirements
 
@@ -31,6 +35,4 @@ tasks:
     cmds:
       - docker run --rm $JOB_NAME
 
-  run-remote:
-    cmds:
-      - gcloud run jobs execute $JOB_NAME --project $PROJECT --region $REGION
+
