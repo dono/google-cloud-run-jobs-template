@@ -1,0 +1,36 @@
+version: '3'
+
+silent: true
+
+env:
+  PROJECT: my-project-id
+  SERVICE_ACCOUNT: service-account@my-project-id.iam.gserviceaccount.com
+  JOB_NAME: my-job-name
+  REGION: asia-east2
+  TASKS: 1
+  MAX_RETRIES: 5
+
+tasks:
+  export-requirements:
+    cmds:
+      - uv export -o requirements.txt --no-hashes
+
+  build:
+    cmds:
+      - pack build $JOB_NAME && docker image prune -f
+    deps:
+      - export-requirements
+
+  deploy:
+    cmds:
+      - gcloud run jobs deploy $JOB_NAME --source . --project $PROJECT --service-account $SERVICE_ACCOUNT --region $REGION --tasks $TASKS --max-retries $MAX_RETRIES
+    deps:
+      - export-requirements
+
+  run-local:
+    cmds:
+      - docker run --rm $JOB_NAME
+
+  run-remote:
+    cmds:
+      - gcloud run jobs execute $JOB_NAME --project $PROJECT --region $REGION
