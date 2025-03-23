@@ -15,7 +15,7 @@ tasks:
     cmds:
       - uv export -o requirements.txt --no-hashes
 
-　deploy:
+  deploy:
     cmds:
       - gcloud run jobs deploy $JOB_NAME --source . --project $PROJECT --service-account $SERVICE_ACCOUNT --region $REGION --tasks $TASKS --max-retries $MAX_RETRIES
     deps:
@@ -34,5 +34,3 @@ tasks:
   run-local:
     cmds:
       - docker run --rm $JOB_NAME
-
-
